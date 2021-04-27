@@ -26,7 +26,7 @@ namespace WorkerAcoes.Data
 
             var horario = DateTime.Now;
             var document = new AcaoDocument();
-            document.HistLancamento = acao.Codigo + horario.ToString("yyyyMMddHHmmss");
+            document.HistLancamento = "CANALDOTNET-" + acao.Codigo + horario.ToString("yyyyMMddHHmmss");
             document.Codigo = acao.Codigo;
             document.Valor = acao.Valor;
             document.DataReferencia = horario.ToString("yyyy-MM-dd HH:mm:ss");
