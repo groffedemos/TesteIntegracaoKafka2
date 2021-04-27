@@ -69,7 +69,9 @@ jobs:
         dotnet publish ${{ env.PATH_PROJETO }} -c Release -o app
         cd ./app
         sleep 20s
-        nohup dotnet WorkerAcoes.dll > ${{ env.PATH_LOG_EXECUCAO_WORKERACOES }} 2>&1 &
+        nohup dotnet WorkerAcoes.dll > log-execucao-workeracoes.txt 2>&1 &
+        sleep 10s
+        ls
 
     - name: Execução dos testes de integração
       env:
