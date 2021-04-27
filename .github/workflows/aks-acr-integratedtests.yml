@@ -147,7 +147,7 @@ jobs:
         sed -i 's/IMAGE-DEPLOYMENT/${{ env.NOME_IMAGEM }}/' ./manifests/deployment.yml
         sed -i 's/TAG-DEPLOYMENT/${{ github.run_number }}/' ./manifests/deployment.yml
     
-    - name: Azure Kubernetes Service - Deployment de Web App
+    - name: Azure Kubernetes Service - Deployment de Worker Service
       uses: Azure/k8s-deploy@v1.3
       with:
         namespace: ${{ env.NAMESPACE_K8S }}
