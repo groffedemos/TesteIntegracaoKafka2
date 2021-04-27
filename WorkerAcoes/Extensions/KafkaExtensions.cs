@@ -30,5 +30,30 @@ namespace WorkerAcoes.Extensions
                     $"Status: { result.Status.ToString()}");
             }
         }
+
+        public static IConsumer<Ignore, string> CreateConsumerBuilder(
+            IConfiguration configuration)
+        {
+            if (!ExecutingTests(configuration))
+                return new ConsumerBuilder<Ignore, string>(
+                    new ConsumerConfig()
+                    {
+                        BootstrapServers = configuration["ApacheKafka:Broker"],
+                        SecurityProtocol = SecurityProtocol.SaslSsl,
+                        SaslMechanism = SaslMechanism.Plain,
+                        SaslUsername = configuration["ApacheKafka:Username"],
+                        SaslPassword = configuration["ApacheKafka:Password"],
+                        GroupId = configuration["ApacheKafka:GroupId"],
+                        AutoOffsetReset = AutoOffsetReset.Earliest
+                    }).Build();
+            else
+                return new ConsumerBuilder<Ignore, string>(
+                    new ConsumerConfig()
+                    {
+                        BootstrapServers = configuration["ApacheKafka:Broker"],
+                        GroupId = configuration["ApacheKafka:GroupId"],
+                        AutoOffsetReset = AutoOffsetReset.Earliest
+                    }).Build();
+        }
     }
 }

@@ -8,6 +8,7 @@ using Confluent.Kafka;
 using WorkerAcoes.Data;
 using WorkerAcoes.Models;
 using WorkerAcoes.Validators;
+using WorkerAcoes.Extensions;
 
 namespace WorkerAcoes
 {
@@ -24,15 +25,7 @@ namespace WorkerAcoes
             _logger = logger;
             _configuration = configuration;
             _repository = repository;
-
-            _consumer = new ConsumerBuilder<Ignore, string>(
-                new ConsumerConfig()
-                {
-                    BootstrapServers = _configuration["ApacheKafka:Broker"],
-                    GroupId = _configuration["ApacheKafka:GroupId"],
-                    AutoOffsetReset = AutoOffsetReset.Earliest
-                }).Build();
-
+            _consumer = KafkaExtensions.CreateConsumerBuilder(configuration);
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
