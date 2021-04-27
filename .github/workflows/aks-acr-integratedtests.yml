@@ -11,12 +11,13 @@ env:
   NOME_IMAGEM: workeracoeskafka
   PATH_PROJETO: ./WorkerAcoes
   PATH_PROJETO_TESTES: ./WorkerAcoes.IntegrationTests
+  PATH_LOG_EXECUCAO_WORKERACOES: ./log-execucao-workeracoes.txt
   AZURE_RESOURCE_GROUP_K8S: TesteKubernetes
   AZURE_CLUSTER_K8S: AKSCluster
   NAMESPACE_K8S: workeracoesgha
   
 jobs:
-  build:
+  tests:
 
     runs-on: ubuntu-latest
 
@@ -67,32 +68,23 @@ jobs:
       run: |
         dotnet publish ${{ env.PATH_PROJETO }} -c Release -o app
         cd ./app
-        ls
         sleep 20s
-        nohup dotnet WorkerAcoes.dll > teste.txt 2>&1 &
-
-    - name: Build de imagem
-      run: |
-        docker network ls
-        cd ${{ env.PATH_PROJETO }}
-        docker build . --file Dockerfile --tag ${{ secrets.AZURECR_REGISTRY }}/${{ env.NOME_IMAGEM }}:latest
-
-    - name: Criação de container para testes com o Worker
-      run: |
-        docker run --name worker-testes --net=host -d ${{ secrets.AZURECR_REGISTRY }}/${{ env.NOME_IMAGEM }}:latest
-        sleep 20s
-        docker container ls
+        nohup dotnet WorkerAcoes.dll > ${{ env.PATH_LOG_EXECUCAO_WORKERACOES }} 2>&1 &
 
     - name: Execução dos testes de integração
       env:
         IntervaloProcessamento: 4000
       run: dotnet test ${{ env.PATH_PROJETO_TESTES }} --verbosity minimal --logger:"html;LogFileName=resultado-testes.html"
-      
-    - name: Teste - container worker
+
+    - name: Upload como Artifact do Log de Execução do Worker de Ações
+      uses: actions/upload-artifact@v2.2.3
       if: always()
-      run: docker container ls
-    
-    - name: Upload como Artifact do Report de Testes com Falhas
+      with:
+        name: log-execucao-workeracoes
+        path: ${{ env.PATH_LOG_EXECUCAO_WORKERACOES }}
+        retention-days: 30
+
+    - name: Upload como Artifact do Report de Testes
       uses: actions/upload-artifact@v2.2.3
       if: always()
       env:
