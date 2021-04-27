@@ -19,6 +19,41 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    services:
+      zookeeper:
+        image: confluentinc/cp-zookeeper:latest
+        env:
+          ZOOKEEPER_CLIENT_PORT: 2181
+          ZOOKEEPER_TICK_TIME: 2000
+        ports:
+          - 2181:2181
+      kafka:
+        image: confluentinc/cp-kafka:latest
+        env:
+          KAFKA_BROKER_ID: 1
+          KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+          KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+          KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+          KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+          KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+        ports:
+          - 9092:9092
+      mongodb:
+        image: mongo:latest
+        env:
+          MONGO_INITDB_ROOT_USERNAME: root
+          MONGO_INITDB_ROOT_PASSWORD: MongoDB2021!
+        ports:
+          - 27017:27017
+
+    env:
+      MongoDBConnection: mongodb://root:MongoDB2021!@localhost:27017
+      MongoDatabase: DBAcoesTestes
+      MongoCollection: HistoricoAcoesTestes
+      ApacheKafka__Broker: localhost:9092
+      ApacheKafka__Topic: topic-testes-acoes
+      ApacheKafka__GroupId: WorkerAcoesTestes
+
     steps:
     - uses: actions/checkout@v2
 
@@ -27,7 +62,7 @@ jobs:
       with:
         dotnet-version: 5.0.202
         
-    - name: Build e Push no Azure Container Registry
+    - name: Build de imagem
       run: |
         cd ${{ env.PATH_PROJETO }}
         docker build . --file Dockerfile --tag ${{ secrets.AZURECR_REGISTRY }}/${{ env.NOME_IMAGEM }}:latest
@@ -35,4 +70,5 @@ jobs:
     - name: Criação de container para testes com o Worker
       run: |
         docker run --name worker-testes -d ${{ secrets.AZURECR_REGISTRY }}/${{ env.NOME_IMAGEM }}:latest
+        sleep 10s
         docker container ls
