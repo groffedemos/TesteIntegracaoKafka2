@@ -48,8 +48,10 @@ jobs:
           - 27017:27017
 
     env:
+      MongoDBConnection: mongodb://root:MongoDB2021!@127.0.0.1:27017
       MongoDatabase: DBAcoesTestes
       MongoCollection: HistoricoAcoesTestes
+      ApacheKafka__Broker: 127.0.0.1:9092
       ApacheKafka__Topic: topic-testes-acoes
       ApacheKafka__GroupId: WorkerAcoesTestes
 
@@ -64,7 +66,8 @@ jobs:
     - name: Build de imagem
       run: |
         cd ${{ env.PATH_PROJETO }}
-        docker build . --file Dockerfile --tag ${{ secrets.AZURECR_REGISTRY }}/${{ env.NOME_IMAGEM }}:latest
+        sleep 20s
+        nohup dotnet run
 
     - name: Criação de container para testes com o Worker
       env:
@@ -78,8 +81,6 @@ jobs:
     - name: Execução dos testes de integração
       env:
         IntervaloProcessamento: 4000
-        MongoDBConnection: mongodb://root:MongoDB2021!@127.0.0.1:27017
-        ApacheKafka__Broker: 127.0.0.1:9092
       run: dotnet test ${{ env.PATH_PROJETO_TESTES }} --verbosity minimal --logger:"html;LogFileName=resultado-testes.html"
       
     - name: Teste - container worker
