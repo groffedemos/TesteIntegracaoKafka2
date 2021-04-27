@@ -69,7 +69,7 @@ jobs:
         cd ./app
         ls
         sleep 20s
-        nohup dotnet WorkerAcoes.dll > teste.txt
+        nohup dotnet WorkerAcoes.dll > teste.txt 2>&1 &
 
     - name: Build de imagem
       run: |
