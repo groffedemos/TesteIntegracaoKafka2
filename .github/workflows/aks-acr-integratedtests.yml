@@ -65,6 +65,7 @@ jobs:
         
     - name: Build de imagem
       run: |
+        docker network ls
         cd ${{ env.PATH_PROJETO }}
         docker build . --file Dockerfile --tag ${{ secrets.AZURECR_REGISTRY }}/${{ env.NOME_IMAGEM }}:latest
 
