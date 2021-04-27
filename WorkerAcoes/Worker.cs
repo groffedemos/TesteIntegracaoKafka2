@@ -25,7 +25,7 @@ namespace WorkerAcoes
             _logger = logger;
             _configuration = configuration;
             _repository = repository;
-            _consumer = KafkaExtensions.CreateConsumerBuilder(configuration);
+            _consumer = KafkaExtensions.CreateConsumer(configuration);
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
