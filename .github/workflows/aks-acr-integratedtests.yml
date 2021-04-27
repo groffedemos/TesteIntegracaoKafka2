@@ -48,10 +48,10 @@ jobs:
           - 27017:27017
 
     env:
-      MongoDBConnection: mongodb://root:MongoDB2021!@0.0.0.0:27017
+      MongoDBConnection: mongodb://root:MongoDB2021!@127.0.0.1:27017
       MongoDatabase: DBAcoesTestes
       MongoCollection: HistoricoAcoesTestes
-      ApacheKafka__Broker: 0.0.0.0:9092
+      ApacheKafka__Broker: 127.0.0.1:9092
       ApacheKafka__Topic: topic-testes-acoes
       ApacheKafka__GroupId: WorkerAcoesTestes
 
@@ -70,7 +70,7 @@ jobs:
 
     - name: Criação de container para testes com o Worker
       run: |
-        docker run --name worker-testes -d ${{ secrets.AZURECR_REGISTRY }}/${{ env.NOME_IMAGEM }}:latest
+        docker run --name worker-testes --add-host=host.docker.internal:host-gateway -d ${{ secrets.AZURECR_REGISTRY }}/${{ env.NOME_IMAGEM }}:latest
         sleep 20s
         docker container ls
 
