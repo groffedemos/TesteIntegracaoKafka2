@@ -48,10 +48,10 @@ jobs:
           - 27017:27017
 
     env:
-      MongoDBConnection: mongodb://root:MongoDB2021!@localhost:27017
+      MongoDBConnection: mongodb://root:MongoDB2021!@0.0.0.0:27017
       MongoDatabase: DBAcoesTestes
       MongoCollection: HistoricoAcoesTestes
-      ApacheKafka__Broker: localhost:9092
+      ApacheKafka__Broker: 0.0.0.0:9092
       ApacheKafka__Topic: topic-testes-acoes
       ApacheKafka__GroupId: WorkerAcoesTestes
 
