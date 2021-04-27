@@ -76,9 +76,18 @@ namespace WorkerAcoes.IntegrationTests
             Thread.Sleep(
                 Convert.ToInt32(Configuration["IntervaloProcessamento"]));
 
-            var acaoDocument = new MongoClient(Configuration["MongoDBConnection"])
-                .GetDatabase(Configuration["MongoDatabase"])
-                .GetCollection<AcaoDocument>(Configuration["MongoCollection"])
+            var mongoDBConnection = Configuration["MongoDBConnection"];
+            Logger.Information($"MongoDB Connection: {mongoDBConnection}");
+
+            var mongoDatabase = Configuration["MongoDatabase"];
+            Logger.Information($"MongoDB Database: {mongoDatabase}");
+
+            var mongoCollection = Configuration["MongoCollection"];
+            Logger.Information($"MongoDB Collection: {mongoCollection}");
+
+            var acaoDocument = new MongoClient(mongoDBConnection)
+                .GetDatabase(mongoDatabase)
+                .GetCollection<AcaoDocument>(mongoCollection)
                 .Find(h => h.Codigo == codigo).SingleOrDefault();
 
             acaoDocument.Should().NotBeNull();
