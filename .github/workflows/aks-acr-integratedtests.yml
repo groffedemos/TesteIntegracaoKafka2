@@ -80,6 +80,7 @@ jobs:
       run: dotnet test ${{ env.PATH_PROJETO_TESTES }} --verbosity minimal --logger:"html;LogFileName=resultado-testes.html"
       
     - name: Teste - container worker
+      if: always()
       run: docker container ls
     
     - name: Upload como Artifact do Report de Testes com Falhas
