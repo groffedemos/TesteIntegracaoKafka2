@@ -70,8 +70,6 @@ jobs:
         cd ./app
         sleep 20s
         nohup dotnet WorkerAcoes.dll > ${{ env.FILE_LOG_EXECUCAO_WORKERACOES }} 2>&1 &
-        sleep 10s
-        ls
 
     - name: Execução dos testes de integração
       env:
