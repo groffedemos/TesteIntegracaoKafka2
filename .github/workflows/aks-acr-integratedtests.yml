@@ -68,7 +68,8 @@ jobs:
         dotnet publish ${{ env.PATH_PROJETO }} -c Release -o app
         cd ./app
         ls
-        nohup dotnet WorkerAcoes.dll
+        sleep 20s
+        nohup dotnet WorkerAcoes.dll > teste.txt
 
     - name: Build de imagem
       run: |
