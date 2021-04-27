@@ -1,11 +1,16 @@
 using System;
 using System.IO;
-using Microsoft.Extensions.DependencyInjection;
+using System.Text.Json;
+using System.Threading;
 using Microsoft.Extensions.Configuration;
 using Xunit;
-using System.Text.Json;
+using FluentAssertions;
 using Confluent.Kafka;
+using MongoDB.Driver;
+using Serilog;
+using Serilog.Core;
 using WorkerAcoes.IntegrationTests.Models;
+using WorkerAcoes.IntegrationTests.Documents;
 
 namespace WorkerAcoes.IntegrationTests
 {
@@ -13,29 +18,76 @@ namespace WorkerAcoes.IntegrationTests
     {
         private const string COD_CORRETORA = "00000";
         private const string NOME_CORRETORA = "Corretora Testes";
-        private IConfiguration _configuration;
+        private static IConfiguration Configuration { get; }
+        private static Logger Logger { get; }
 
-        public TestesIntegracaoWorkerAcoes()
+        static TestesIntegracaoWorkerAcoes()
         {
-            _configuration = new ConfigurationBuilder()
+            Configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile($"appsettings.json")
                 .AddEnvironmentVariables().Build();
 
+            Logger = new LoggerConfiguration()
+                .WriteTo.Console()
+                .CreateLogger();
         }
 
         [Theory]
-        [InlineData("ABC", 100.98)]
+        [InlineData("ABCD", 100.98)]
+        [InlineData("EFGH", 200.9)]
+        [InlineData("IJKL", 1_400.978)]
         public void Test1(string codigo, double valor)
         {
-            var acao = new Acao()
+            var broker = Configuration["ApacheKafka:Broker"];
+            Logger.Information($"Broker Kafka: {broker}");
+
+            var topic = Configuration["ApacheKafka:Topic"];
+            Logger.Information($"Tópico: {topic}");
+
+            var cotacaoAcao = new Acao()
             {
                 Codigo = codigo,
                 Valor = valor,
                 CodCorretora = COD_CORRETORA,
                 NomeCorretora = NOME_CORRETORA
             };
+            var conteudoAcao = JsonSerializer.Serialize(cotacaoAcao);
+            Logger.Information($"Dados: {conteudoAcao}");
 
+            var configKafka = new ProducerConfig
+            {
+                BootstrapServers = broker
+            };
+
+            using (var producer = new ProducerBuilder<Null, string>(configKafka).Build())
+            {
+                var result = producer.ProduceAsync(
+                    topic,
+                    new Message<Null, string>
+                    { Value = conteudoAcao }).Result;
+
+                Logger.Information(
+                    $"Apache Kafka - Envio para o tópico {topic} concluído | " +
+                    $"{conteudoAcao} | Status: { result.Status.ToString()}");
+            }
+            
+            Logger.Information("Aguardando o processamento do Worker...");
+            Thread.Sleep(
+                Convert.ToInt32(Configuration["IntervaloProcessamento"]));
+
+            var acaoDocument = new MongoClient(Configuration["MongoDBConnection"])
+                .GetDatabase(Configuration["MongoDatabase"])
+                .GetCollection<AcaoDocument>(Configuration["MongoCollection"])
+                .Find(h => h.Codigo == codigo).SingleOrDefault();
+
+            acaoDocument.Should().NotBeNull();
+            acaoDocument.Codigo.Should().Be(codigo);
+            acaoDocument.Valor.Should().Be(valor);
+            acaoDocument.CodCorretora.Should().Be(COD_CORRETORA);
+            acaoDocument.NomeCorretora.Should().Be(NOME_CORRETORA);
+            acaoDocument.HistLancamento.Should().NotBeNullOrWhiteSpace();
+            acaoDocument.DataReferencia.Should().NotBeNullOrWhiteSpace();
         }
     }
 }

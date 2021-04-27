@@ -18,10 +18,9 @@ namespace WorkerAcoes.Data
         public void Save(Acao acao)
         {
             var client = new MongoClient(
-                _configuration.GetConnectionString("MongoDBConnection"));
-            IMongoDatabase db = client.GetDatabase(
+                _configuration["MongoDBConnection"]);
+            var db = client.GetDatabase(
                 _configuration["MongoDatabase"]);
-
             var historico = db.GetCollection<AcaoDocument>(
                 _configuration["MongoCollection"]);
 
@@ -32,7 +31,7 @@ namespace WorkerAcoes.Data
             document.Valor = acao.Valor;
             document.DataReferencia = horario.ToString("yyyy-MM-dd HH:mm:ss");
             document.CodCorretora = acao.CodCorretora;
-            document.NomeCorretora = acao.NomeCorretora;
+            document.NomeCorretora = acao.NomeCorretora; // Simulação de falha
 
             historico.InsertOne(document);
         }

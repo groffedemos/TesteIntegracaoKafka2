@@ -1,9 +1,9 @@
 using MongoDB.Bson;
 
-namespace WorkerAcoes.Documents
+namespace WorkerAcoes.IntegrationTests.Documents
 {
     public class AcaoDocument
-    {
+    {        
         public ObjectId _id { get; set; }
         public string HistLancamento { get; set; }
         public string Codigo { get; set; }

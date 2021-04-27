@@ -1,4 +1,3 @@
-using System;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,7 +8,6 @@ using Confluent.Kafka;
 using WorkerAcoes.Data;
 using WorkerAcoes.Models;
 using WorkerAcoes.Validators;
-using WorkerAcoes.Extensions;
 
 namespace WorkerAcoes
 {
@@ -26,13 +24,6 @@ namespace WorkerAcoes
             _logger = logger;
             _configuration = configuration;
             _repository = repository;
-
-            // Assume o uso do Apache Kafka e desta aplicação em modo testes
-            // quando não houver um password de acesso definido
-            //var executandoTestes = KafkaExtensions.ExecutingTests(configuration);
-            
-            //if (executandoTestes)
-            //    CreateTopicForTestsIfNotExist();
 
             _consumer = new ConsumerBuilder<Ignore, string>(
                 new ConsumerConfig()
