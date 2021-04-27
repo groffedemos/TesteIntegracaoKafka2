@@ -10,6 +10,7 @@ env:
   NOME_APLICACAO: workeracoes
   NOME_IMAGEM: workeracoeskafka
   PATH_PROJETO: ./WorkerAcoes
+  PATH_PROJETO_TESTES: ./WorkerAcoes.IntegrationTests
   AZURE_RESOURCE_GROUP_K8S: TesteKubernetes
   AZURE_CLUSTER_K8S: AKSCluster
   NAMESPACE_K8S: workeracoesgha
@@ -55,10 +56,10 @@ jobs:
       ApacheKafka__GroupId: WorkerAcoesTestes
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v2.3.4
 
     - name: Setup .NET
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v1.7.2
       with:
         dotnet-version: 5.0.202
         
@@ -70,5 +71,20 @@ jobs:
     - name: Criação de container para testes com o Worker
       run: |
         docker run --name worker-testes -d ${{ secrets.AZURECR_REGISTRY }}/${{ env.NOME_IMAGEM }}:latest
-        sleep 10s
+        sleep 20s
         docker container ls
+
+    - name: Execução dos testes de integração
+      env:
+        IntervaloProcessamento: 4000
+      run: dotnet test ${{ env.PATH_PROJETO_TESTES }} --verbosity minimal --logger:"html;LogFileName=resultado-testes.html"
+      
+    - name: Upload como Artifact do Report de Testes com Falhas
+      uses: actions/upload-artifact@v2.2.3
+      if: always()
+      env:
+        CAMINHO_RELATORIO: ${{ env.PATH_PROJETO_TESTES }}/TestResults/resultado-testes.html
+      with:
+        name: resultado-testes
+        path: ${{ env.CAMINHO_RELATORIO }}
+        retention-days: 30
