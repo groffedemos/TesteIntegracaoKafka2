@@ -1,0 +1,38 @@
+name: aks-acr-integratedtests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  NOME_APLICACAO: workeracoes
+  NOME_IMAGEM: workeracoeskafka
+  PATH_PROJETO: ./WorkerAcoes
+  AZURE_RESOURCE_GROUP_K8S: TesteKubernetes
+  AZURE_CLUSTER_K8S: AKSCluster
+  NAMESPACE_K8S: workeracoesgha
+  
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.202
+        
+    - name: Build e Push no Azure Container Registry
+      run: |
+        cd ${{ env.PATH_PROJETO }}
+        docker build . --file Dockerfile --tag ${{ secrets.AZURECR_REGISTRY }}/${{ env.NOME_IMAGEM }}:latest
+
+    - name: Criação de container para testes com o Worker
+      run: |
+        docker run --name worker-testes -d ${{ secrets.AZURECR_REGISTRY }}/${{ env.NOME_IMAGEM }}:latest
+        docker container ls
