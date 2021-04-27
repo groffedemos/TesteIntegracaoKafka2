@@ -31,7 +31,7 @@ namespace WorkerAcoes.Extensions
             }
         }
 
-        public static IConsumer<Ignore, string> CreateConsumerBuilder(
+        public static IConsumer<Ignore, string> CreateConsumer(
             IConfiguration configuration)
         {
             if (!ExecutingTests(configuration))
