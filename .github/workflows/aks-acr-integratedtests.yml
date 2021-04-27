@@ -66,15 +66,11 @@ jobs:
     - name: Build de imagem
       run: |
         cd ${{ env.PATH_PROJETO }}
-        sleep 20s
-        nohup dotnet run
+        docker build . --file Dockerfile --tag ${{ secrets.AZURECR_REGISTRY }}/${{ env.NOME_IMAGEM }}:latest
 
     - name: Criação de container para testes com o Worker
-      env:
-        MongoDBConnection: mongodb://root:MongoDB2021!@host.docker.internal:27017
-        ApacheKafka__Broker: host.docker.internal:9092
       run: |
-        docker run --name worker-testes --add-host=host.docker.internal:host-gateway -d ${{ secrets.AZURECR_REGISTRY }}/${{ env.NOME_IMAGEM }}:latest
+        docker run --name worker-testes --net=host -d ${{ secrets.AZURECR_REGISTRY }}/${{ env.NOME_IMAGEM }}:latest
         sleep 20s
         docker container ls
 
