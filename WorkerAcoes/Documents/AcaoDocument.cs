@@ -1,4 +1,5 @@
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace WorkerAcoes.Documents
 {
@@ -11,6 +12,7 @@ namespace WorkerAcoes.Documents
         public string DataReferencia { get; set; }
         public string CodCorretora { get; set; }
         public string NomeCorretora { get; set; }
+        [BsonIgnoreIfNull]
         public int Ano { get; set; }
     }
 }
