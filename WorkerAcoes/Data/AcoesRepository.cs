@@ -31,8 +31,8 @@ namespace WorkerAcoes.Data
             document.Valor = acao.Valor;
             document.DataReferencia = horario.ToString("yyyy-MM-dd HH:mm:ss");
             document.CodCorretora = acao.CodCorretora;
-            document.NomeCorretora = acao.CodCorretora; // Simulação de falha
-            //document.NomeCorretora = acao.NomeCorretora;
+            //document.NomeCorretora = acao.CodCorretora; // Simulação de falha
+            document.NomeCorretora = acao.NomeCorretora;
 
             historico.InsertOne(document);
         }
