@@ -79,6 +79,9 @@ jobs:
         IntervaloProcessamento: 4000
       run: dotnet test ${{ env.PATH_PROJETO_TESTES }} --verbosity minimal --logger:"html;LogFileName=resultado-testes.html"
       
+    - name: Teste - container worker
+      run: docker container ls
+    
     - name: Upload como Artifact do Report de Testes com Falhas
       uses: actions/upload-artifact@v2.2.3
       if: always()
