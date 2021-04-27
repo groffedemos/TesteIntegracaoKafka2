@@ -11,5 +11,6 @@ namespace WorkerAcoes.Documents
         public string DataReferencia { get; set; }
         public string CodCorretora { get; set; }
         public string NomeCorretora { get; set; }
+        public int Ano { get; set; }
     }
 }

@@ -33,6 +33,7 @@ namespace WorkerAcoes.Data
             document.CodCorretora = acao.CodCorretora;
             //document.NomeCorretora = acao.CodCorretora; // Simulação de falha
             document.NomeCorretora = acao.NomeCorretora;
+            document.Ano = DateTime.Now.Year;
 
             historico.InsertOne(document);
         }
